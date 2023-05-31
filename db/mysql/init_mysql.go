@@ -22,7 +22,7 @@ func InitMysql() {
 	dataBase := os.Getenv("MYSQL_DATABASE")
 
 	if dataBase == "" {
-		dataBase = "golang_demo"
+		dataBase = "hackathon"
 	}
 	source = fmt.Sprintf(source, user, pwd, addr, dataBase)
 	fmt.Println("start init mysql with ", source)
