@@ -16,17 +16,45 @@ limitations under the License.
 package main
 
 import (
-	//"douyincloud-gin-demo/component"
+	"douyincloud-gin-demo/db/mongodb"
+	"douyincloud-gin-demo/db/mysql"
+	"douyincloud-gin-demo/db/redis"
 	"douyincloud-gin-demo/service"
-	"github.com/gin-gonic/gin"
+	"fmt"
+	"net/http"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	//component.InitComponents()
-	r := gin.Default()
+	mysql.InitMysql()
+	redis.InitRedis()
+	mongodb.InitMongoDB()
 
-	r.GET("/api/hello", service.Hello)
-	r.POST("/api/set_name", service.SetName)
+	http.HandleFunc("/v1/ping", service.PingHandler) //火山校验
 
-	r.Run(":8000")
+	http.HandleFunc("/mysql/select", service.MysqlSelect)
+	http.HandleFunc("/mysql/select_list", service.MysqlSelectList)
+	http.HandleFunc("/mysql/create", service.MysqlCreate)
+	http.HandleFunc("/mysql/create_lock_table", service.MysqlCreateLockTable)
+	http.HandleFunc("/mysql/update", service.MysqlUpdate)
+	http.HandleFunc("/mysql/update_counts", service.MysqlUpdateCounts)
+	http.HandleFunc("/mysql/delete", service.MysqlDelete)
+	http.HandleFunc("/mysql/delete_rollback", service.MysqlDeleteRollback)
+
+	listenPort := ":8000"
+	if listenPort == "" {
+		log.Fatal("failed to load _FAAS_RUNTIME_PORT")
+	}
+
+	// 部署状态控制
+	if os.Getenv("deploy") == "fail" {
+		panic("crash")
+		listenPort = ""
+		fmt.Println("fail")
+	}
+
+	fmt.Println("http ListenAndServe ", listenPort)
+	log.Fatal(http.ListenAndServe(listenPort, nil))
 }
