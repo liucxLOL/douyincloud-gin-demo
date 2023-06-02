@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var dbInstance *gorm.DB
+var DbInstance *gorm.DB
 
 // Init 初始化数据库
 func InitMysql() {
@@ -47,7 +47,7 @@ func InitMysql() {
 	// 设置了连接可复用的最大时间
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	dbInstance = db
+	DbInstance = db
 
 	endingTime := time.Now().UTC()
 	fmt.Println("finish init mysql with ", source, "duration is: ", endingTime.Sub(startingTime))
@@ -55,5 +55,5 @@ func InitMysql() {
 
 // Get dbInstance
 func GetMysql() *gorm.DB {
-	return dbInstance
+	return DbInstance
 }

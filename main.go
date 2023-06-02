@@ -34,9 +34,9 @@ func main() {
 
 	http.HandleFunc("/v1/ping", service.PingHandler) //火山校验
 
-	http.HandleFunc("/mysql/select", service.MysqlSelect)
-	http.HandleFunc("/mysql/select_list", service.MysqlSelectList)
-	http.HandleFunc("/mysql/create", service.MysqlCreate)
+	http.HandleFunc("/api/getQuestionnaireList", service.SelectQuestionnaireList)
+	http.HandleFunc("/api/getQuestionnaireInfo", service.GetQuestionnaireInfo)
+	http.HandleFunc("/api/createQuestionnaire", service.CreateQuestionnaireInfo)
 	http.HandleFunc("/mysql/create_lock_table", service.MysqlCreateLockTable)
 	http.HandleFunc("/mysql/update", service.MysqlUpdate)
 	http.HandleFunc("/mysql/update_counts", service.MysqlUpdateCounts)
