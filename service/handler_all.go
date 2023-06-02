@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyincloud-gin-demo/db/mysql/model"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -62,16 +63,17 @@ func SelectQuestionnaireList(w http.ResponseWriter, req *http.Request) {
 	log.Info("[SelectQuestionnaireList] owner =" + owner + ",openId=" + openID)
 	ctx := context.Background()
 	naires := []*model.Questionnaire{}
+	err := errors.New("systemError")
 	//如果为true
 	if owner == "true" {
-		naires, err := model.SelectQuestionnaireByOpenId(openID)
+		naires, err = model.SelectQuestionnaireByOpenId(openID)
 		if err != nil || len(naires) == 0 {
 			log.Error("True getnaire faild err=%v,naires=%v", err, naires)
 			FillResponse(ctx, w, 0, nil)
 			return
 		}
 	} else {
-		naires, err := model.SelectQuestionnaires()
+		naires, err = model.SelectQuestionnaires()
 		if err != nil || len(naires) == 0 {
 			log.Error("False getnaire faild err=%v,naires=%v", err, naires)
 			FillResponse(ctx, w, 0, nil)
