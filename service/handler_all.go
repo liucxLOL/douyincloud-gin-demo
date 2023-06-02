@@ -59,20 +59,21 @@ type CreateQuestionnaireReq struct {
 func SelectQuestionnaireList(w http.ResponseWriter, req *http.Request) {
 	owner := req.FormValue("owner")
 	openID := req.Header.Get("X-TT-OPENID")
+	log.Info("[SelectQuestionnaireList] owner =" + owner + ",openId=" + openID)
 	ctx := context.Background()
 	naires := []*model.Questionnaire{}
 	//如果为true
 	if owner == "true" {
 		naires, err := model.SelectQuestionnaireByOpenId(openID)
 		if err != nil || len(naires) == 0 {
-			log.Error("getnaire faild err=%v,naires=%v", err, naires)
+			log.Error("True getnaire faild err=%v,naires=%v", err, naires)
 			FillResponse(ctx, w, 0, nil)
 			return
 		}
 	} else {
 		naires, err := model.SelectQuestionnaires()
 		if err != nil || len(naires) == 0 {
-			log.Error("getnaire faild err=%v,naires=%v", err, naires)
+			log.Error("False getnaire faild err=%v,naires=%v", err, naires)
 			FillResponse(ctx, w, 0, nil)
 			return
 		}
@@ -175,6 +176,7 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
+	log.Info("CreateQuestionnaireInfo begin")
 	ctx := context.Background()
 	naireReq := &CreateQuestionnaireReq{}
 	err := json.NewDecoder(req.Body).Decode(naireReq)

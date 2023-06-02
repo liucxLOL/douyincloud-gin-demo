@@ -28,7 +28,7 @@ func SelectQuestionnaireByOpenId(openId string) ([]*Questionnaire, error) {
 	var err error
 	var models []*Questionnaire
 	err = db.Debug().Table(QuestionnaireTableName).
-		Where("CreatorOpenId = ?", openId).Scan(&models).Error
+		Where("creator_open_id = ?", openId).Scan(&models).Error
 	if err != nil {
 		return nil, err
 	}
