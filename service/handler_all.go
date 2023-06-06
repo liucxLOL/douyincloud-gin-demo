@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyincloud-gin-demo/db/mysql/model"
+	"douyincloud-gin-demo/service/handle_volc"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -230,11 +231,44 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		ResultSheetUrl: naireReq.ResultSheetUrl,
 		CreatorOpenId:  openID,
 	}
+
+	isContinue := SetQuestionnaires(ctx, naireReq)
+
+	if !isContinue {
+
+	}
+
 	err = model.InsertQuestionnaire(naireModel)
 	if err != nil {
 		log.Error("insert into questionnaire faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
 	}
+}
+
+func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq) bool {
+
+	urls := []string{}
+
+	if req.HomepageUrl != "" {
+		urls = append(urls, req.HomepageUrl)
+	}
+
+	if req.IconUrl != "" {
+		urls = append(urls, req.IconUrl)
+	}
+
+	if req.ResultSheetUrl != "" {
+		urls = append(urls, req.ResultSheetUrl)
+	}
+
+	if req.AnsertSheetUrl != "" {
+		urls = append(urls, req.AnsertSheetUrl)
+	}
+
+	if len(urls) == 0 {
+		return false
+	}
+	return handle_volc.SetPicPublic(ctx, urls)
 }
 func GetModelFromReq(ctx context.Context, req *http.Request, model interface{}) interface{} {
 	err := json.NewDecoder(req.Body).Decode(model)

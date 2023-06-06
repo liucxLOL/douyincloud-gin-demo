@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sirupsen/logrus v1.9.0
-	github.com/volcengine/ve-tos-golang-sdk/v2 v2.5.3
+	github.com/volcengine/ve-tos-golang-sdk/v2 v2.5.5
 	go.mongodb.org/mongo-driver v1.11.2
 	gorm.io/driver/mysql v1.3.4
 	gorm.io/gorm v1.23.6
