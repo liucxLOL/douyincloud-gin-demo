@@ -235,7 +235,8 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	isContinue := SetQuestionnaires(ctx, naireReq)
 
 	if !isContinue {
-
+		FillResponse(ctx, w, 2001, nil)
+		return
 	}
 
 	err = model.InsertQuestionnaire(naireModel)
