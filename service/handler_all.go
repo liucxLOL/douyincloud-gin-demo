@@ -6,6 +6,7 @@ import (
 	"douyincloud-gin-demo/service/handle_volc"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -178,6 +179,75 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 
 }
 
+func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
+	log.Info("UpdateQuestionnaireInfo begin")
+	ctx := context.Background()
+	naireReq := &CreateQuestionnaireReq{}
+	err := json.NewDecoder(req.Body).Decode(naireReq)
+	openID := req.Header.Get("X-TT-OPENID")
+	if err != nil || openID == "" {
+		log.Error("[UpdateQuestionnaireInfo] trans req 2 model faild err=%v", err)
+		FillResponse(ctx, w, 1, nil)
+	}
+
+	for _, question := range naireReq.Questions {
+		//保存Answers
+		for _, answer := range question.Answers {
+			answerModel := &model.Answer{
+				AnswerId:   answer.AnswerId,
+				QuestionId: answer.QuestionId,
+				Content:    answer.Content,
+			}
+			err := model.UpdateAnswer(answerModel)
+			if err != nil {
+				log.Error("update answer faild err=%v", err)
+				FillResponse(ctx, w, 1, nil)
+			}
+
+		}
+
+		//保存Questions
+		questionModel := &model.Question{
+			QuestionId:     question.QuestionId,
+			Content:        question.Content,
+			AnswerId:       question.OwnerAnswerId,
+			QuestionaireId: question.QuestionaireId,
+		}
+		err := model.UpdateQuestion(questionModel)
+		if err != nil {
+			log.Error("update  question faild err=%v", err)
+			FillResponse(ctx, w, 1, nil)
+		}
+	}
+
+	//保存Questionnaire
+	naireModel := &model.Questionnaire{
+		QuestionaireId: naireReq.QuestionaireId,
+		Title:          naireReq.Title,
+		Type:           int(naireReq.NaireType),
+		IconUrl:        naireReq.IconUrl,
+		IconTitle:      naireReq.IconTitle,
+		HomepageUrl:    naireReq.HomepageUrl,
+		AnsertSheetUrl: naireReq.AnsertSheetUrl,
+		ResultSheetUrl: naireReq.ResultSheetUrl,
+		CreatorOpenId:  openID,
+	}
+
+	isContinue := SetQuestionnaires(ctx, naireReq, true)
+
+	if !isContinue {
+		FillResponse(ctx, w, 2001, nil)
+		return
+	}
+
+	err = model.UpdateQuestionnaire(naireModel)
+	if err != nil {
+		log.Error("update  questionnaire faild err=%v", err)
+		FillResponse(ctx, w, 1, nil)
+	}
+
+}
+
 func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	log.Info("CreateQuestionnaireInfo begin")
 	ctx := context.Background()
@@ -232,7 +302,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		CreatorOpenId:  openID,
 	}
 
-	isContinue := SetQuestionnaires(ctx, naireReq)
+	isContinue := SetQuestionnaires(ctx, naireReq, false)
 
 	if !isContinue {
 		FillResponse(ctx, w, 2001, nil)
@@ -246,28 +316,52 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq) bool {
-
+func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq, isUpdate bool) bool {
 	urls := []string{}
+	if !isUpdate {
 
-	if req.HomepageUrl != "" {
-		urls = append(urls, req.HomepageUrl)
-	}
+		if req.HomepageUrl != "" {
+			urls = append(urls, req.HomepageUrl)
+		}
 
-	if req.IconUrl != "" {
-		urls = append(urls, req.IconUrl)
-	}
+		if req.IconUrl != "" {
+			urls = append(urls, req.IconUrl)
+		}
 
-	if req.ResultSheetUrl != "" {
-		urls = append(urls, req.ResultSheetUrl)
-	}
+		if req.ResultSheetUrl != "" {
+			urls = append(urls, req.ResultSheetUrl)
+		}
 
-	if req.AnsertSheetUrl != "" {
-		urls = append(urls, req.AnsertSheetUrl)
-	}
+		if req.AnsertSheetUrl != "" {
+			urls = append(urls, req.AnsertSheetUrl)
+		}
 
-	if len(urls) == 0 {
-		return false
+		if len(urls) == 0 {
+			return false
+		}
+	} else {
+		naireId := req.QuestionaireId
+		naire, err := model.SelectQuestionnaireById(naireId)
+		if err != nil || naire != nil {
+			log.Error(fmt.Sprintf("update naire faild naireId=%v", naireId))
+			return false
+		}
+
+		if naire.ResultSheetUrl != req.ResultSheetUrl {
+			urls = append(urls, req.ResultSheetUrl)
+		}
+
+		if naire.AnsertSheetUrl != req.AnsertSheetUrl {
+			urls = append(urls, req.AnsertSheetUrl)
+		}
+
+		if naire.IconUrl != req.IconUrl {
+			urls = append(urls, req.IconUrl)
+		}
+
+		if naire.HomepageUrl != req.HomepageUrl {
+			urls = append(urls, req.HomepageUrl)
+		}
 	}
 	return handle_volc.SetPicPublic(ctx, urls)
 }

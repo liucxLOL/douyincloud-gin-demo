@@ -70,7 +70,7 @@ func InsertQuestion(model *Question) error {
 	return nil
 }
 
-func UpdateQuestion(model *QuestionDto) error {
+func UpdateQuestion(model *Question) error {
 	db := GetMysql()
 	var err error
 	err = db.Debug().Table(QuestionTableName).
@@ -81,7 +81,7 @@ func UpdateQuestion(model *QuestionDto) error {
 	}
 
 	err = db.Debug().Table(QuestionTableName).
-		Where("question_id = ?", model.TransQuestionDto2Question()).Updates(&model).Error
+		Where("question_id = ?", model.QuestionId).Updates(&model).Error
 	if err != nil {
 		fmt.Sprintf("update QuestionDto faild QuestionDto=%v", model)
 		return err

@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/api/getQuestionnaireList", service.SelectQuestionnaireList)
 	http.HandleFunc("/api/getQuestionnaireInfo", service.GetQuestionnaireInfo)
 	http.HandleFunc("/api/createQuestionnaire", service.CreateQuestionnaireInfo)
+	http.HandleFunc("/api/updateQuestionnaire", service.UpdateQuestionnaireInfo)
 	http.HandleFunc("/mysql/create_lock_table", service.MysqlCreateLockTable)
 	http.HandleFunc("/mysql/update", service.MysqlUpdate)
 	http.HandleFunc("/mysql/update_counts", service.MysqlUpdateCounts)
