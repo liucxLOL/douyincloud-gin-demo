@@ -199,6 +199,8 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	ctx := context.Background()
 	naireReq := &CreateQuestionnaireReq{}
 	err := json.NewDecoder(req.Body).Decode(naireReq)
+	b, _ := json.Marshal(naireReq)
+	fmt.Sprintf("[UpdateQuestionnaireInfo] req info=%v", string(b))
 	openID := req.Header.Get("X-TT-OPENID")
 	if err != nil || openID == "" {
 		log.Error(fmt.Sprintf("[UpdateQuestionnaireInfo] trans req 2 model faild err=%v", err))
