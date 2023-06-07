@@ -255,6 +255,8 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		FillResponse(ctx, w, 1, nil)
 	}
 
+	FillResponse(ctx, w, 0, nil)
+
 }
 
 func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
