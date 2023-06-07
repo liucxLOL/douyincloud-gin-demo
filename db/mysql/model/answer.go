@@ -2,9 +2,11 @@ package model
 
 import (
 	"douyincloud-gin-demo/db/mysql"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // 答案表
@@ -84,12 +86,14 @@ func InsertAnswer(model *Answer) error {
 
 func UpdateAnswer(model *Answer) error {
 	db := GetMysql()
+	err := db.Table(answerTableName).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},                                             // key colume
+		DoUpdates: clause.AssignmentColumns([]string{"answer_id", "question_id", "content"}), // column needed to be updated
+	}).Create(&model)
 
-	err := db.Debug().Table(answerTableName).
-		Where("answer_id = ?", model.AnswerId).Updates(&model).Error
 	if err != nil {
 		fmt.Sprintf("update answer faild answerdto=%v", model)
-		return err
+		return errors.New("system error")
 	}
 	return nil
 }

@@ -1,6 +1,11 @@
 package model
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+
+	"gorm.io/gorm/clause"
+)
 
 // 问题表
 type Question struct {
@@ -73,11 +78,14 @@ func InsertQuestion(model *Question) error {
 func UpdateQuestion(model *Question) error {
 	db := GetMysql()
 
-	err := db.Debug().Table(QuestionTableName).
-		Where("question_id = ?", model.QuestionId).Updates(&model).Error
+	err := db.Table(QuestionTableName).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},                                                                // key colume
+		DoUpdates: clause.AssignmentColumns([]string{"question_id", "content", "answer_id", "questionaire_id"}), // column needed to be updated
+	}).Create(&model)
+
 	if err != nil {
 		fmt.Sprintf("update QuestionDto faild QuestionDto=%v", model)
-		return err
+		return errors.New("system error")
 	}
 	return nil
 }
