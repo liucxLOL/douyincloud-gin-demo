@@ -135,7 +135,7 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 
 	if len(questions) == 0 {
 		log.Error(fmt.Sprintf("[SelectQuestionByQuestionNaireId] question is none  naireId=%v", naireId))
-		FillResponse(ctx, w, 1, nil)
+		FillResponse(ctx, w, 1001, "question is nil")
 		return
 	}
 
@@ -153,7 +153,7 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 
 		if len(answers) == 0 {
 			log.Error(fmt.Sprintf("[SelectAnswersByQuestionId] answers is none  naireId=%v", naireId))
-			FillResponse(ctx, w, 1, nil)
+			FillResponse(ctx, w, 1, "answer is nil")
 			return
 		}
 

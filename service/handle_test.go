@@ -17,3 +17,8 @@ func TestUpdate(t *testing.T) {
 
 	fmt.Println(111)
 }
+
+func Test1(t *testing.T) {
+	msg := fmt.Sprintf("[GetQuestionnaireInfo] begin naireId=%v", 11)
+	fmt.Println(msg)
+}
