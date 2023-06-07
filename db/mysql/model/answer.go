@@ -91,3 +91,11 @@ func UpdateAnswer(model *Answer) error {
 
 	return nil
 }
+
+func DelAnswerNotInUse(useAnswerId []string) error {
+	db := GetMysql()
+
+	db.Debug().Table(answerTableName).Not("answer_id", useAnswerId).Delete(&Answer{})
+
+	return nil
+}

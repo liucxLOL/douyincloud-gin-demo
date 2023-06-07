@@ -82,3 +82,11 @@ func UpdateQuestion(model *Question) error {
 
 	return nil
 }
+
+func DelQuestonNotInUse(useQuestionIds []string) error {
+	db := GetMysql()
+
+	db.Debug().Table(QuestionTableName).Not("question_id", useQuestionIds).Delete(&Question{})
+
+	return nil
+}
