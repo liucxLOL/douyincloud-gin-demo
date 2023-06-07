@@ -71,15 +71,8 @@ func InsertQuestionnaire(model *Questionnaire) error {
 
 func UpdateQuestionnaire(model *Questionnaire) error {
 	db := GetMysql()
-	var err error
-	err = db.Debug().Table(QuestionnaireTableName).
-		Where("questionaire_id = ?", model.QuestionaireId).Scan(&model).Error
-	if err != nil {
-		fmt.Sprintf("no log questionnaire=%v", model)
-		return err
-	}
 
-	err = db.Debug().Table(QuestionnaireTableName).
+	err := db.Debug().Table(QuestionnaireTableName).
 		Where("questionaire_id = ?", model.QuestionaireId).Updates(&model).Error
 	if err != nil {
 		fmt.Sprintf("update questionnaire faild questionnaire=%v", model)
