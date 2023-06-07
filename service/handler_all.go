@@ -116,10 +116,12 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("[GetQuestionnaireInfo] faild naireId=%v", naireId)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 	if naireInfo == nil {
 		log.Warning("[GetQuestionnaireInfo] none naireId=%v", naireId)
 		FillResponse(ctx, w, 0, nil)
+		return
 	}
 
 	naireId = naireInfo.QuestionaireId
@@ -128,11 +130,13 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("[SelectQuestionByQuestionNaireId] faild naireId=%v", naireId)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	if len(questions) == 0 {
 		log.Error("[SelectQuestionByQuestionNaireId] question is none  naireId=%v", naireId)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	questionResps := []Question{}
@@ -144,11 +148,13 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Error("[SelectAnswersByQuestionId] faild naireId=%v", naireId)
 			FillResponse(ctx, w, 1, nil)
+			return
 		}
 
 		if len(answers) == 0 {
 			log.Error("[SelectAnswersByQuestionId] answers is none  naireId=%v", naireId)
 			FillResponse(ctx, w, 1, nil)
+			return
 		}
 
 		for _, answer := range answers {
