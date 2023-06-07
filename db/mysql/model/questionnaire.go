@@ -1,6 +1,10 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+
+	log "github.com/sirupsen/logrus"
+)
 
 // 问卷信息表
 type Questionnaire struct {
@@ -22,6 +26,18 @@ func (m *Questionnaire) TableName() string {
 }
 
 const QuestionnaireTableName = "questionnaire"
+
+func SelectNaireBy(id string) (*Questionnaire, error) {
+	db := GetMysql()
+	var err error
+	var model Questionnaire
+	err = db.Debug().Table(QuestionnaireTableName).
+		Where(" questionaire_id= ?", id).Scan(&model).Error
+	if err != nil {
+		return nil, err
+	}
+	return &model, nil
+}
 
 func SelectQuestionnaireByOpenId(openId string) ([]*Questionnaire, error) {
 	db := GetMysql()
@@ -72,11 +88,20 @@ func InsertQuestionnaire(model *Questionnaire) error {
 func UpdateQuestionnaire(model *Questionnaire) error {
 	db := GetMysql()
 
-	err := db.Debug().Table(QuestionnaireTableName).
-		Where("questionaire_id = ?", model.QuestionaireId).Updates(&model).Error
-	if err != nil {
-		fmt.Sprintf("update questionnaire faild questionnaire=%v", model)
+	queryModel, _ := SelectNaireBy(model.QuestionaireId)
+
+	if queryModel == nil {
+		err := InsertQuestionnaire(model)
+		log.Error(fmt.Sprintf("[UpdateQuestionnaire] insert faild"))
 		return err
+	} else {
+
+		err := db.Debug().Table(QuestionnaireTableName).
+			Where("questionaire_id = ?", model.QuestionaireId).Updates(&model).Error
+		if err != nil {
+			fmt.Sprintf("update questionnaire faild questionnaire=%v", model)
+			return err
+		}
 	}
 	return nil
 }

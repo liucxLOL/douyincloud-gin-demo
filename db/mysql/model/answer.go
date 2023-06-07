@@ -2,9 +2,10 @@ package model
 
 import (
 	"douyincloud-gin-demo/db/mysql"
+	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // 答案表
@@ -52,7 +53,7 @@ func SelectBy(id string) (*Answer, error) {
 	var err error
 	var model Answer
 	err = db.Debug().Table(answerTableName).
-		Where("id = ?", id).Scan(&model).Error
+		Where(" answer_id= ?", id).Scan(&model).Error
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +85,20 @@ func InsertAnswer(model *Answer) error {
 
 func UpdateAnswer(model *Answer) error {
 	db := GetMysql()
-	db.Table(answerTableName).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "answer_id"}},                         // key colume
-		DoUpdates: clause.AssignmentColumns([]string{"question_id", "content"}), // column needed to be updated
-	}).Create(&model)
+	queryModel, _ := SelectBy(model.AnswerId)
+
+	if queryModel == nil {
+		err := InsertAnswer(model)
+		log.Error(fmt.Sprintf("[UpdateAnswer] insert faild"))
+		return err
+	} else {
+		err := db.Debug().Table(answerTableName).
+			Where("answer_id=?", model.AnswerId).Updates(model).Error
+		if err != nil {
+			log.Error(fmt.Sprintf("[UpdateAnswer] update faild"))
+			return err
+		}
+	}
 
 	return nil
 }

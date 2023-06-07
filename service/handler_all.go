@@ -79,14 +79,14 @@ func SelectQuestionnaireList(w http.ResponseWriter, req *http.Request) {
 	if owner == "true" {
 		naires, err = model.SelectQuestionnaireByOpenId(openID)
 		if err != nil || len(naires) == 0 {
-			log.Error("True getnaire faild err=%v,naires=%v", err, naires)
+			log.Error(fmt.Sprintf("True getnaire faild err=%v,naires=%v", err, naires))
 			FillResponse(ctx, w, 0, nil)
 			return
 		}
 	} else {
 		naires, err = model.SelectQuestionnaires()
 		if err != nil || len(naires) == 0 {
-			log.Error("False getnaire faild err=%v,naires=%v", err, naires)
+			log.Error(fmt.Sprintf("False getnaire faild err=%v,naires=%v", err, naires))
 			FillResponse(ctx, w, 0, nil)
 			return
 		}
@@ -111,15 +111,15 @@ func SelectQuestionnaireList(w http.ResponseWriter, req *http.Request) {
 func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	ctx := context.Background()
 	naireId := req.FormValue("questionaireId")
-	log.Info("[GetQuestionnaireInfo] begin naireId=%v", naireId)
+	log.Info(fmt.Sprintf("[GetQuestionnaireInfo] begin naireId=%v", naireId))
 	naireInfo, err := model.SelectQuestionnaireById(naireId)
 	if err != nil {
-		log.Error("[GetQuestionnaireInfo] faild naireId=%v", naireId)
+		log.Error(fmt.Sprintf("[GetQuestionnaireInfo] faild naireId=%v", naireId))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
 	if naireInfo == nil {
-		log.Warning("[GetQuestionnaireInfo] none naireId=%v", naireId)
+		log.Warning(fmt.Sprintf("[GetQuestionnaireInfo] none naireId=%v", naireId))
 		FillResponse(ctx, w, 0, nil)
 		return
 	}
@@ -128,13 +128,13 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 
 	questions, err := model.SelectQuestionByQuestionNaireId(naireId)
 	if err != nil {
-		log.Error("[SelectQuestionByQuestionNaireId] faild naireId=%v", naireId)
+		log.Error(fmt.Sprintf("[SelectQuestionByQuestionNaireId] faild naireId=%v", naireId))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
 
 	if len(questions) == 0 {
-		log.Error("[SelectQuestionByQuestionNaireId] question is none  naireId=%v", naireId)
+		log.Error(fmt.Sprintf("[SelectQuestionByQuestionNaireId] question is none  naireId=%v", naireId))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
@@ -146,13 +146,13 @@ func GetQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		questionId := question.QuestionId
 		answers, err := model.SelectAnswersByQuestionId(questionId)
 		if err != nil {
-			log.Error("[SelectAnswersByQuestionId] faild naireId=%v", naireId)
+			log.Error(fmt.Sprintf("[SelectAnswersByQuestionId] faild naireId=%v", naireId))
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
 
 		if len(answers) == 0 {
-			log.Error("[SelectAnswersByQuestionId] answers is none  naireId=%v", naireId)
+			log.Error(fmt.Sprintf("[SelectAnswersByQuestionId] answers is none  naireId=%v", naireId))
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
@@ -224,7 +224,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			}
 			err := model.UpdateAnswer(answerModel)
 			if err != nil {
-				log.Error("update answer faild err=%v", err)
+				log.Error(fmt.Sprintf("update answer faild err=%v", err))
 				FillResponse(ctx, w, 1, nil)
 				return
 			}
@@ -240,7 +240,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		}
 		err := model.UpdateQuestion(questionModel)
 		if err != nil {
-			log.Error("update  question faild err=%v", err)
+			log.Error(fmt.Sprintf("update  question faild err=%v", err))
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
@@ -277,12 +277,91 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 
 	err = model.UpdateQuestionnaire(naireModel)
 	if err != nil {
-		log.Error("update  questionnaire faild err=%v", err)
+		log.Error(fmt.Sprintf("update  questionnaire faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
 
 	FillResponse(ctx, w, 0, nil)
+
+}
+
+func TestUpdateFUnc(naireReq *CreateQuestionnaireReq) {
+	log.Info("UpdateQuestionnaireInfo begin")
+	ctx := context.Background()
+
+	useQuestionIds := []string{}
+	useAnswerIds := []string{}
+
+	//增加或者更新
+	for _, question := range naireReq.Questions {
+		useAnswerIds = []string{}
+		//保存Answers
+		for _, answer := range question.Answers {
+			useAnswerIds = append(useAnswerIds, answer.AnswerId)
+			answerModel := &model.Answer{
+				AnswerId:   answer.AnswerId,
+				QuestionId: answer.QuestionId,
+				Content:    answer.Content,
+			}
+			err := model.UpdateAnswer(answerModel)
+			if err != nil {
+				log.Error(fmt.Sprintf("update answer faild err=%v", err))
+
+				return
+			}
+
+		}
+
+		//保存Questions
+		questionModel := &model.Question{
+			QuestionId:     question.QuestionId,
+			Content:        question.Content,
+			AnswerId:       question.OwnerAnswerId,
+			QuestionaireId: question.QuestionaireId,
+		}
+		err := model.UpdateQuestion(questionModel)
+		if err != nil {
+			log.Error(fmt.Sprintf("update  question faild err=%v", err))
+
+			return
+		}
+
+		useQuestionIds = append(useQuestionIds, question.QuestionId)
+		log.Info(fmt.Sprintf("del questionId=%v,answerIds=%v", question.QuestionId, useAnswerIds))
+		//删除多余的answer
+		model.DelAnswerNotInUse(useAnswerIds)
+	}
+
+	log.Info(fmt.Sprintf("del questionIds=%v", useQuestionIds))
+	//删除多余的question
+	model.DelQuestonNotInUse(useQuestionIds)
+
+	//保存Questionnaire
+	naireModel := &model.Questionnaire{
+		QuestionaireId: naireReq.QuestionaireId,
+		Title:          naireReq.Title,
+		Type:           int(naireReq.NaireType),
+		IconUrl:        naireReq.IconUrl,
+		IconTitle:      naireReq.IconTitle,
+		HomepageUrl:    naireReq.HomepageUrl,
+		AnsertSheetUrl: naireReq.AnsertSheetUrl,
+		ResultSheetUrl: naireReq.ResultSheetUrl,
+	}
+
+	isContinue := SetQuestionnaires(ctx, naireReq, true)
+
+	if !isContinue {
+
+		return
+	}
+
+	err := model.UpdateQuestionnaire(naireModel)
+	if err != nil {
+		log.Error(fmt.Sprintf("update  questionnaire faild err=%v", err))
+
+		return
+	}
 
 }
 
@@ -293,7 +372,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	err := json.NewDecoder(req.Body).Decode(naireReq)
 	openID := req.Header.Get("X-TT-OPENID")
 	if err != nil || openID == "" {
-		log.Error("[CreateQuestionnaireInfo] trans req 2 model faild err=%v", err)
+		log.Error(fmt.Sprintf("[CreateQuestionnaireInfo] trans req 2 model faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
@@ -308,7 +387,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			}
 			err := model.InsertAnswer(answerModel)
 			if err != nil {
-				log.Error("insert into answer faild err=%v", err)
+				log.Error(fmt.Sprintf("insert into answer faild err=%v", err))
 				FillResponse(ctx, w, 1, nil)
 				return
 			}
@@ -324,7 +403,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		}
 		err := model.InsertQuestion(questionModel)
 		if err != nil {
-			log.Error("insert into question faild err=%v", err)
+			log.Error(fmt.Sprintf("insert into question faild err=%v", err))
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
@@ -353,7 +432,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	log.Info(ctx, fmt.Sprintf("naireReqId=%v, modelId=%v", naireReq.QuestionaireId, naireModel.QuestionaireId))
 	err = model.InsertQuestionnaire(naireModel)
 	if err != nil {
-		log.Error("insert into questionnaire faild err=%v", err)
+		log.Error(fmt.Sprintf("insert into questionnaire faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
@@ -368,7 +447,7 @@ func VolcAIGetPic(w http.ResponseWriter, req *http.Request) {
 	err := json.NewDecoder(req.Body).Decode(volcAiReq)
 	retImage := ""
 	if err != nil {
-		log.Error("[VolcAIGetPic] trans req 2 model faild err=%v", err)
+		log.Error(fmt.Sprintf("[VolcAIGetPic] trans req 2 model faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
@@ -442,7 +521,7 @@ func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq, isUpdat
 func GetModelFromReq(ctx context.Context, req *http.Request, model interface{}) interface{} {
 	err := json.NewDecoder(req.Body).Decode(model)
 	if err != nil {
-		log.Error("trans req 2 model faild err=%v", err)
+		log.Error(fmt.Sprintf("trans req 2 model faild err=%v", err))
 		return nil
 	}
 

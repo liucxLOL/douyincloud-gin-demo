@@ -1,7 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm/clause"
+	"fmt"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // 问题表
@@ -49,6 +51,18 @@ func (d *QuestionDto) TransQuestionDto2Question() *Question {
 	}
 }
 
+func SelectQuestionById(id string) (*Question, error) {
+	db := GetMysql()
+	var err error
+	var model Question
+	err = db.Debug().Table(QuestionTableName).
+		Where(" question_id= ?", id).Scan(&model).Error
+	if err != nil {
+		return nil, err
+	}
+	return &model, nil
+}
+
 func SelectQuestionByQuestionNaireId(questionaireId string) ([]*Question, error) {
 	db := GetMysql()
 	var err error
@@ -74,11 +88,20 @@ func InsertQuestion(model *Question) error {
 
 func UpdateQuestion(model *Question) error {
 	db := GetMysql()
+	queryModel, _ := SelectQuestionById(model.QuestionId)
 
-	db.Table(QuestionTableName).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "question_id"}},                                        // key colume
-		DoUpdates: clause.AssignmentColumns([]string{"content", "answer_id", "questionaire_id"}), // column needed to be updated
-	}).Create(&model)
+	if queryModel == nil {
+		err := InsertQuestion(model)
+		log.Error(fmt.Sprintf("[UpdateQuestion] insert faild"))
+		return err
+	} else {
+		err := db.Debug().Table(QuestionTableName).
+			Where("question_id=?", model.QuestionId).Updates(model).Error
+		if err != nil {
+			log.Error(fmt.Sprintf("[UpdateQuestion] update faild"))
+			return err
+		}
+	}
 
 	return nil
 }

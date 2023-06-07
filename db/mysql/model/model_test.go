@@ -17,9 +17,9 @@ func TestSelect(t *testing.T) {
 func TestUpdateAnswer(t *testing.T) {
 	mysql.InitMysql()
 	ans := &Answer{
-		AnswerId:   "1686139095162_0_0",
-		QuestionId: "liucx_1",
-		Content:    "update_lcx_content",
+		AnswerId:   "1686139095162_0_1",
+		QuestionId: "1686139095162_0",
+		Content:    "C_liucx",
 	}
 	UpdateAnswer(ans)
 
