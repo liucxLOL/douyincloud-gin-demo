@@ -40,7 +40,7 @@ func SetPicPublic(ctx context.Context, picUrls []string) bool {
 
 		if err != nil || output == nil {
 			msg := fmt.Sprintf("PutObjectACL Request ID:", output.RequestID)
-			log.Error(ctx, "PutObjectACL openRead faild  picUrl="+msg)
+			log.Error(msg)
 			return false
 		}
 

@@ -208,6 +208,11 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if len(naireReq.Questions) == 0 {
+		FillResponse(ctx, w, 1001, "quesiton number is 0")
+		return
+	}
+
 	useQuestionIds := []string{}
 	useAnswerIds := []string{}
 
@@ -215,6 +220,10 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	for _, question := range naireReq.Questions {
 		useAnswerIds = []string{}
 		//保存Answers
+		if len(question.Answers) == 0 {
+			FillResponse(ctx, w, 1002, "answer number is 0")
+			return
+		}
 		for _, answer := range question.Answers {
 			useAnswerIds = append(useAnswerIds, answer.AnswerId)
 			answerModel := &model.Answer{
@@ -295,7 +304,6 @@ func TestUpdateFUnc(naireReq *CreateQuestionnaireReq) {
 
 	//增加或者更新
 	for _, question := range naireReq.Questions {
-		useAnswerIds = []string{}
 		//保存Answers
 		for _, answer := range question.Answers {
 			useAnswerIds = append(useAnswerIds, answer.AnswerId)
@@ -329,13 +337,13 @@ func TestUpdateFUnc(naireReq *CreateQuestionnaireReq) {
 
 		useQuestionIds = append(useQuestionIds, question.QuestionId)
 		log.Info(fmt.Sprintf("del questionId=%v,answerIds=%v", question.QuestionId, useAnswerIds))
-		//删除多余的answer
-		model.DelAnswerNotInUse(useAnswerIds)
 	}
 
 	log.Info(fmt.Sprintf("del questionIds=%v", useQuestionIds))
 	//删除多余的question
 	model.DelQuestonNotInUse(useQuestionIds)
+	//删除多余的answer
+	model.DelAnswerNotInUse(useAnswerIds)
 
 	//保存Questionnaire
 	naireModel := &model.Questionnaire{
