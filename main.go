@@ -16,11 +16,8 @@ limitations under the License.
 package main
 
 import (
-	"douyincloud-gin-demo/db/mongodb"
 	"douyincloud-gin-demo/db/mysql"
-	"douyincloud-gin-demo/db/redis"
 	"douyincloud-gin-demo/service"
-	"douyincloud-gin-demo/service/handle_volc"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,11 +26,7 @@ import (
 
 func main() {
 
-	handle_volc.GetAIPhotoStr()
-
 	mysql.InitMysql()
-	redis.InitRedis()
-	mongodb.InitMongoDB()
 
 	http.HandleFunc("/v1/ping", service.PingHandler) //火山校验
 

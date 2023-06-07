@@ -214,6 +214,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		useAnswerIds = []string{}
 		//保存Answers
 		for _, answer := range question.Answers {
+			useAnswerIds = append(useAnswerIds, answer.AnswerId)
 			answerModel := &model.Answer{
 				AnswerId:   answer.AnswerId,
 				QuestionId: answer.QuestionId,
@@ -241,6 +242,8 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
+
+		useQuestionIds = append(useQuestionIds, question.QuestionId)
 
 		//删除多余的answer
 		model.DelAnswerNotInUse(useAnswerIds)
