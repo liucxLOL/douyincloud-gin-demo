@@ -56,7 +56,7 @@ func SelectQuestionById(id string) (*Question, error) {
 	var err error
 	var model Question
 	err = db.Debug().Table(QuestionTableName).
-		Where(" question_id= ?", id).Scan(&model).Error
+		Where("question_id= ?", id).Scan(&model).Error
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func UpdateQuestion(model *Question) error {
 	db := GetMysql()
 	queryModel, _ := SelectQuestionById(model.QuestionId)
 
-	if queryModel == nil {
+	if queryModel.QuestionId != model.QuestionId {
 		err := InsertQuestion(model)
 		log.Error(fmt.Sprintf("[UpdateQuestion] insert faild"))
 		return err

@@ -87,7 +87,7 @@ func UpdateAnswer(model *Answer) error {
 	db := GetMysql()
 	queryModel, _ := SelectBy(model.AnswerId)
 
-	if queryModel == nil {
+	if queryModel.AnswerId != model.AnswerId {
 		err := InsertAnswer(model)
 		log.Error(fmt.Sprintf("[UpdateAnswer] insert faild"))
 		return err
