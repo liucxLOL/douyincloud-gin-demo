@@ -85,8 +85,8 @@ func InsertAnswer(model *Answer) error {
 func UpdateAnswer(model *Answer) error {
 	db := GetMysql()
 	db.Table(answerTableName).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},                                             // key colume
-		DoUpdates: clause.AssignmentColumns([]string{"answer_id", "question_id", "content"}), // column needed to be updated
+		Columns:   []clause.Column{{Name: "answer_id"}},                         // key colume
+		DoUpdates: clause.AssignmentColumns([]string{"question_id", "content"}), // column needed to be updated
 	}).Create(&model)
 
 	return nil

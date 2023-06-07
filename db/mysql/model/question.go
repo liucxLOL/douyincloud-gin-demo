@@ -76,8 +76,8 @@ func UpdateQuestion(model *Question) error {
 	db := GetMysql()
 
 	db.Table(QuestionTableName).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},                                                                // key colume
-		DoUpdates: clause.AssignmentColumns([]string{"question_id", "content", "answer_id", "questionaire_id"}), // column needed to be updated
+		Columns:   []clause.Column{{Name: "question_id"}},                                        // key colume
+		DoUpdates: clause.AssignmentColumns([]string{"content", "answer_id", "questionaire_id"}), // column needed to be updated
 	}).Create(&model)
 
 	return nil
