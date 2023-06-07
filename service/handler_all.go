@@ -246,11 +246,12 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		}
 
 		useQuestionIds = append(useQuestionIds, question.QuestionId)
-
+		log.Info(fmt.Sprintf("del questionId=%v,answerIds=%v", question.QuestionId, useAnswerIds))
 		//删除多余的answer
 		model.DelAnswerNotInUse(useAnswerIds)
 	}
 
+	log.Info(fmt.Sprintf("del questionIds=%v", useQuestionIds))
 	//删除多余的question
 	model.DelQuestonNotInUse(useQuestionIds)
 
