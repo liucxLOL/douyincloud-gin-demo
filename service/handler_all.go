@@ -13,6 +13,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type VolcAiReq struct {
+	ImageBase64 string `json:"image_base_64"`
+	Type        int    `json:"type"` //1.漫画风，2老照片修复
+}
+
+type VolcAiRespon struct {
+	ImageBase64 string `json:"image_base_64"`
+}
+
 type Questionnaire struct {
 	QuestionaireId string `json:"questionaireId"` //问卷id
 	Title          string `json:"title"`          //问卷标题
@@ -317,6 +326,34 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	}
 
 	FillResponse(ctx, w, 0, nil)
+}
+
+func VolcAIGetPic(w http.ResponseWriter, req *http.Request) {
+	log.Info("VolcAIpicBegin")
+	ctx := context.Background()
+	volcAiReq := &VolcAiReq{}
+	err := json.NewDecoder(req.Body).Decode(volcAiReq)
+	retImage := ""
+	if err != nil {
+		log.Error("[VolcAIGetPic] trans req 2 model faild err=%v", err)
+		FillResponse(ctx, w, 1, nil)
+	}
+	if volcAiReq.Type == 1 {
+		//漫画风
+		retImage = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 1)
+
+	} else if volcAiReq.Type == 2 {
+		//老照片修复
+		retImage = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 2)
+	}
+
+	if retImage == "" {
+		log.Info("VolcAIGetPic end retImage faild")
+		FillResponse(ctx, w, 1, "")
+		return
+	}
+
+	FillResponse(ctx, w, 0, retImage)
 }
 
 func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq, isUpdate bool) bool {
