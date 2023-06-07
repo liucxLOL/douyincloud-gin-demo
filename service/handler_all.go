@@ -203,6 +203,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil || openID == "" {
 		log.Error("[UpdateQuestionnaireInfo] trans req 2 model faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	for _, question := range naireReq.Questions {
@@ -217,6 +218,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				log.Error("update answer faild err=%v", err)
 				FillResponse(ctx, w, 1, nil)
+				return
 			}
 
 		}
@@ -232,6 +234,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Error("update  question faild err=%v", err)
 			FillResponse(ctx, w, 1, nil)
+			return
 		}
 	}
 
@@ -259,6 +262,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("update  questionnaire faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	FillResponse(ctx, w, 0, nil)
@@ -274,6 +278,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil || openID == "" {
 		log.Error("[CreateQuestionnaireInfo] trans req 2 model faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	for _, question := range naireReq.Questions {
@@ -288,6 +293,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				log.Error("insert into answer faild err=%v", err)
 				FillResponse(ctx, w, 1, nil)
+				return
 			}
 
 		}
@@ -303,6 +309,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Error("insert into question faild err=%v", err)
 			FillResponse(ctx, w, 1, nil)
+			return
 		}
 	}
 
@@ -331,6 +338,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("insert into questionnaire faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 
 	FillResponse(ctx, w, 0, nil)
@@ -345,6 +353,7 @@ func VolcAIGetPic(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("[VolcAIGetPic] trans req 2 model faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
+		return
 	}
 	if volcAiReq.Type == 1 {
 		//漫画风
