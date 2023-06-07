@@ -382,7 +382,7 @@ func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq, isUpdat
 	} else {
 		naireId := req.QuestionaireId
 		naire, err := model.SelectQuestionnaireById(naireId)
-		if err != nil || naire != nil {
+		if err != nil || naire == nil {
 			log.Error(fmt.Sprintf("update naire faild naireId=%v", naireId))
 			return false
 		}

@@ -24,6 +24,17 @@ func InitMysql() {
 	if dataBase == "" {
 		dataBase = "hackathon"
 	}
+
+	if user == "" {
+		user = "liucx_211459"
+	}
+
+	if pwd == "" {
+		pwd = "Liuchenxing123"
+	}
+	if addr == "" {
+		addr = "111.62.122.91"
+	}
 	source = fmt.Sprintf(source, user, pwd, addr, dataBase)
 	fmt.Println("start init mysql with ", source)
 
