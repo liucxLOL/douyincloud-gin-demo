@@ -72,15 +72,8 @@ func InsertQuestion(model *Question) error {
 
 func UpdateQuestion(model *Question) error {
 	db := GetMysql()
-	var err error
-	err = db.Debug().Table(QuestionTableName).
-		Where("question_id = ?", model.QuestionaireId).Scan(&model).Error
-	if err != nil {
-		fmt.Sprintf("no log QuestionDto=%v", model)
-		return err
-	}
 
-	err = db.Debug().Table(QuestionTableName).
+	err := db.Debug().Table(QuestionTableName).
 		Where("question_id = ?", model.QuestionId).Updates(&model).Error
 	if err != nil {
 		fmt.Sprintf("update QuestionDto faild QuestionDto=%v", model)

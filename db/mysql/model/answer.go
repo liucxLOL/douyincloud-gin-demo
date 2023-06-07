@@ -84,15 +84,8 @@ func InsertAnswer(model *Answer) error {
 
 func UpdateAnswer(model *Answer) error {
 	db := GetMysql()
-	var err error
-	err = db.Debug().Table(answerTableName).
-		Where("answer_id = ?", model.AnswerId).Scan(&model).Error
-	if err != nil {
-		fmt.Sprintf("no log answerdto=%v", model)
-		return err
-	}
 
-	err = db.Debug().Table(answerTableName).
+	err := db.Debug().Table(answerTableName).
 		Where("answer_id = ?", model.AnswerId).Updates(&model).Error
 	if err != nil {
 		fmt.Sprintf("update answer faild answerdto=%v", model)
