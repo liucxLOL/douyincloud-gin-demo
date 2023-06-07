@@ -315,6 +315,8 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		log.Error("insert into questionnaire faild err=%v", err)
 		FillResponse(ctx, w, 1, nil)
 	}
+
+	FillResponse(ctx, w, 0, nil)
 }
 
 func SetQuestionnaires(ctx context.Context, req *CreateQuestionnaireReq, isUpdate bool) bool {
