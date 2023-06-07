@@ -20,14 +20,17 @@ import (
 	"douyincloud-gin-demo/db/mysql"
 	"douyincloud-gin-demo/db/redis"
 	"douyincloud-gin-demo/service"
+	"douyincloud-gin-demo/service/handle_volc"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+
+	handle_volc.GetCartonPhoto()
+
 	mysql.InitMysql()
 	redis.InitRedis()
 	mongodb.InitMongoDB()

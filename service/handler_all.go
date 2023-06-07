@@ -309,6 +309,7 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Info(ctx, fmt.Sprintf("naireReqId=%v, modelId=%v", naireReq.QuestionaireId, naireModel.QuestionaireId))
 	err = model.InsertQuestionnaire(naireModel)
 	if err != nil {
 		log.Error("insert into questionnaire faild err=%v", err)
