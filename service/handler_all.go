@@ -201,7 +201,7 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	err := json.NewDecoder(req.Body).Decode(naireReq)
 	openID := req.Header.Get("X-TT-OPENID")
 	if err != nil || openID == "" {
-		log.Error("[UpdateQuestionnaireInfo] trans req 2 model faild err=%v", err)
+		log.Error(fmt.Sprintf("[UpdateQuestionnaireInfo] trans req 2 model faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
 		return
 	}
