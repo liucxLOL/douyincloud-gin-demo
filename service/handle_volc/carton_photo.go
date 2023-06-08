@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/volcengine/volc-sdk-golang/service/visual"
 	"github.com/volcengine/volc-sdk-golang/service/visual/model"
 )
@@ -31,7 +32,7 @@ func GetAIPhotoStr() string {
 	return ""
 }
 
-func GetAIPhoto(imageBase64 string, aiType int) string {
+func GetAIPhoto(imageBase64 string, aiType int) (string, bool) {
 	testAk := "AKLTMTdmNzQxZjczZjk0NGVkYTk3YzdiZmY5YWEyMTM1MGE"
 	testSk := "T0dZek5EbGtaakkzTVdFNU5HTXdaRGc1TXpSbU56aG1aRGRoTURReU1UTQ=="
 
@@ -45,26 +46,26 @@ func GetAIPhoto(imageBase64 string, aiType int) string {
 		resp, status, err := visual.DefaultInstance.JPCartoon(form)
 		fmt.Println(status, err)
 		b, _ := json.Marshal(resp)
-		fmt.Println(string(b))
+		log.Info(fmt.Sprintf("JPCartoon resp=%v", string(b)))
 
 		if resp.Code != 10000 {
-			return ""
+			return resp.Message, false
 		}
 
-		return resp.Data.Image
+		return resp.Data.Image, true
 	} else if aiType == 2 {
 		resp, status, err := visual.DefaultInstance.ConvertPhoto(form)
 		fmt.Println(status, err)
 		b, _ := json.Marshal(resp)
-		fmt.Println(string(b))
+		log.Info(fmt.Sprintf("ConvertPhoto resp=%v", string(b)))
 
 		if resp.Code != 10000 {
-			return ""
+			return resp.Message, false
 		}
 
-		return resp.Data.Image
+		return resp.Data.Image, true
 	}
 
-	return ""
+	return "system error", false
 
 }

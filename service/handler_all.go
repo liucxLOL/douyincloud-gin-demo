@@ -448,12 +448,38 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 	FillResponse(ctx, w, 0, nil)
 }
 
+func TestAiGetPic(Type int, imageBase64 string) {
+	log.Info("VolcAIpicBegin")
+
+	retImage := ""
+	var isSuccess bool
+
+	if Type == 1 {
+		//漫画风
+		retImage, isSuccess = handle_volc.GetAIPhoto(imageBase64, 1)
+
+	} else if Type == 2 {
+		//老照片修复
+		retImage, isSuccess = handle_volc.GetAIPhoto(imageBase64, 2)
+	}
+
+	if retImage == "" {
+		log.Info("VolcAIGetPic end retImage faild")
+
+		return
+	}
+
+	fmt.Println(retImage)
+	fmt.Println(isSuccess)
+}
+
 func VolcAIGetPic(w http.ResponseWriter, req *http.Request) {
 	log.Info("VolcAIpicBegin")
 	ctx := context.Background()
 	volcAiReq := &VolcAiReq{}
 	err := json.NewDecoder(req.Body).Decode(volcAiReq)
 	retImage := ""
+	var isSuccess bool
 	if err != nil {
 		log.Error(fmt.Sprintf("[VolcAIGetPic] trans req 2 model faild err=%v", err))
 		FillResponse(ctx, w, 1, nil)
@@ -461,16 +487,16 @@ func VolcAIGetPic(w http.ResponseWriter, req *http.Request) {
 	}
 	if volcAiReq.Type == 1 {
 		//漫画风
-		retImage = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 1)
+		retImage, isSuccess = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 1)
 
 	} else if volcAiReq.Type == 2 {
 		//老照片修复
-		retImage = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 2)
+		retImage, isSuccess = handle_volc.GetAIPhoto(volcAiReq.ImageBase64, 2)
 	}
 
-	if retImage == "" {
+	if retImage == "" && !isSuccess {
 		log.Info("VolcAIGetPic end retImage faild")
-		FillResponse(ctx, w, 1, "")
+		FillResponse(ctx, w, 1, retImage)
 		return
 	}
 
