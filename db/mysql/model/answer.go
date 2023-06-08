@@ -103,10 +103,15 @@ func UpdateAnswer(model *Answer) error {
 	return nil
 }
 
-func DelAnswerNotInUse(useAnswerId []string) error {
+func DelAnswersByQuestionId(questionID string) error {
 	db := GetMysql()
 
-	db.Debug().Table(answerTableName).Not("answer_id", useAnswerId).Delete(&Answer{})
+	err := db.Debug().Table(answerTableName).Where("question_id=?", questionID).Delete(&Answer{}).Error
+
+	if err != nil {
+		log.Error(fmt.Sprintf("DelAnswersByQuestionId del faild questionId=%v", questionID))
+		return err
+	}
 
 	return nil
 }

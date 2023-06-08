@@ -213,10 +213,26 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	useQuestionIds := []string{}
-	useAnswerIds := []string{}
+	//删除问卷questions
+	for _, ques := range naireReq.Questions {
 
-	//增加或者更新
+		quesitonId := ques.QuestionId
+
+		err := model.DelAnswersByQuestionId(quesitonId)
+		if err != nil {
+			FillResponse(ctx, w, 1004, "Del answer faild ")
+			return
+		}
+	}
+
+	err = model.DelQuestionsByNaireId(naireReq.QuestionaireId)
+
+	if err != nil {
+		FillResponse(ctx, w, 1005, "Del naired faild ")
+		return
+	}
+
+	//增加
 	for _, question := range naireReq.Questions {
 		//保存Answers
 		if len(question.Answers) == 0 {
@@ -224,13 +240,12 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		for _, answer := range question.Answers {
-			useAnswerIds = append(useAnswerIds, answer.AnswerId)
 			answerModel := &model.Answer{
 				AnswerId:   answer.AnswerId,
 				QuestionId: answer.QuestionId,
 				Content:    answer.Content,
 			}
-			err := model.UpdateAnswer(answerModel)
+			err := model.InsertAnswer(answerModel)
 			if err != nil {
 				log.Error(fmt.Sprintf("update answer faild err=%v", err))
 				FillResponse(ctx, w, 1, nil)
@@ -246,23 +261,13 @@ func UpdateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 			AnswerId:       question.OwnerAnswerId,
 			QuestionaireId: question.QuestionaireId,
 		}
-		err := model.UpdateQuestion(questionModel)
+		err := model.InsertQuestion(questionModel)
 		if err != nil {
 			log.Error(fmt.Sprintf("update  question faild err=%v", err))
 			FillResponse(ctx, w, 1, nil)
 			return
 		}
-
-		useQuestionIds = append(useQuestionIds, question.QuestionId)
-		log.Info(fmt.Sprintf("del questionId=%v,answerIds=%v", question.QuestionId, useAnswerIds))
-
 	}
-
-	log.Info(fmt.Sprintf("del questionIds=%v", useQuestionIds))
-	//删除多余的question
-	model.DelQuestonNotInUse(useQuestionIds)
-	//删除多余的answer
-	model.DelAnswerNotInUse(useAnswerIds)
 
 	//保存Questionnaire
 	naireModel := &model.Questionnaire{
@@ -340,10 +345,6 @@ func TestUpdateFUnc(naireReq *CreateQuestionnaireReq) {
 	}
 
 	log.Info(fmt.Sprintf("del questionIds=%v", useQuestionIds))
-	//删除多余的question
-	model.DelQuestonNotInUse(useQuestionIds)
-	//删除多余的answer
-	model.DelAnswerNotInUse(useAnswerIds)
 
 	//保存Questionnaire
 	naireModel := &model.Questionnaire{

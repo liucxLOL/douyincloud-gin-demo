@@ -113,3 +113,16 @@ func DelQuestonNotInUse(useQuestionIds []string) error {
 
 	return nil
 }
+
+func DelQuestionsByNaireId(questionnaireId string) error {
+	db := GetMysql()
+
+	err := db.Debug().Table(QuestionTableName).Where("questionaire_id=?", questionnaireId).Delete(&Question{}).Error
+
+	if err != nil {
+		log.Error(fmt.Sprintf("DelQuestionsByNaireId del faild questionaire_id=%v", questionnaireId))
+		return err
+	}
+
+	return nil
+}
