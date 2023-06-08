@@ -48,7 +48,7 @@ func GetAIPhoto(imageBase64 string, aiType int) (string, bool) {
 		b, _ := json.Marshal(resp)
 		log.Info(fmt.Sprintf("JPCartoon resp=%v", string(b)))
 
-		if resp.Code != 10000 {
+		if resp == nil || resp.Code != 10000 {
 			return resp.Message, false
 		}
 
@@ -59,7 +59,7 @@ func GetAIPhoto(imageBase64 string, aiType int) (string, bool) {
 		b, _ := json.Marshal(resp)
 		log.Info(fmt.Sprintf("ConvertPhoto resp=%v", string(b)))
 
-		if resp.Code != 10000 {
+		if resp == nil || resp.Code != 10000 {
 			return resp.Message, false
 		}
 

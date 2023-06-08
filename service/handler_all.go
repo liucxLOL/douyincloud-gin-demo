@@ -385,6 +385,9 @@ func CreateQuestionnaireInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	reqbyte, _ := json.Marshal(naireReq)
+	log.Info(fmt.Sprintf("[CreateQuestionnaireInfo] req=%v", string(reqbyte)))
+
 	for _, question := range naireReq.Questions {
 		//保存Answers
 		for _, answer := range question.Answers {

@@ -2,8 +2,6 @@ package model
 
 import (
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // 问卷信息表
@@ -88,20 +86,12 @@ func InsertQuestionnaire(model *Questionnaire) error {
 func UpdateQuestionnaire(model *Questionnaire) error {
 	db := GetMysql()
 
-	queryModel, _ := SelectNaireBy(model.QuestionaireId)
-
-	if queryModel == nil {
-		err := InsertQuestionnaire(model)
-		log.Error(fmt.Sprintf("[UpdateQuestionnaire] insert faild"))
+	err := db.Debug().Table(QuestionnaireTableName).
+		Where("questionaire_id = ?", model.QuestionaireId).Updates(&model).Error
+	if err != nil {
+		fmt.Sprintf("update questionnaire faild questionnaire=%v", model)
 		return err
-	} else {
-
-		err := db.Debug().Table(QuestionnaireTableName).
-			Where("questionaire_id = ?", model.QuestionaireId).Updates(&model).Error
-		if err != nil {
-			fmt.Sprintf("update questionnaire faild questionnaire=%v", model)
-			return err
-		}
 	}
+
 	return nil
 }
