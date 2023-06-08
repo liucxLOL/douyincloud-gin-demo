@@ -16,7 +16,6 @@ limitations under the License.
 package main
 
 import (
-	"douyincloud-gin-demo/db/mysql"
 	"douyincloud-gin-demo/service"
 	"fmt"
 	"log"
@@ -26,18 +25,10 @@ import (
 
 func main() {
 
-	mysql.InitMysql()
+	//mysql.InitMysql()
 
 	http.HandleFunc("/v1/ping", service.PingHandler) //火山校验
-
-	http.HandleFunc("/api/getQuestionnaireList", service.SelectQuestionnaireList)
-	http.HandleFunc("/api/getQuestionnaireInfo", service.GetQuestionnaireInfo)
-	http.HandleFunc("/api/createQuestionnaire", service.CreateQuestionnaireInfo)
-	http.HandleFunc("/api/updateQuestionnaire", service.UpdateQuestionnaireInfo)
 	http.HandleFunc("/api/volcAi", service.VolcAIGetPic)
-	http.HandleFunc("/mysql/update_counts", service.MysqlUpdateCounts)
-	http.HandleFunc("/mysql/delete", service.MysqlDelete)
-	http.HandleFunc("/mysql/delete_rollback", service.MysqlDeleteRollback)
 
 	listenPort := ":8000"
 	if listenPort == "" {
